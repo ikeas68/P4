@@ -49,34 +49,46 @@ public partial class MainWindow : Window
             {
                 var cell = new Grid
                 {
-                    Margin = new Thickness(6),
+                    Margin = new Thickness(4),
                     IsHitTestVisible = false
                 };
 
-                var borderEllipse = new Ellipse
+                var rim = new Ellipse
                 {
-                    Fill = new SolidColorBrush(Color.FromArgb(255, 11, 79, 108)),
-                    Stroke = (Brush)FindResource("BoardHighlightBrush"),
-                    StrokeThickness = 2,
+                    Fill = Brushes.Transparent,
+                    Stroke = new SolidColorBrush(Color.FromArgb(180, 236, 246, 255)),
+                    StrokeThickness = 3,
                     Effect = new DropShadowEffect
                     {
-                        Color = Color.FromArgb(200, 2, 18, 29),
-                        BlurRadius = 18,
+                        Color = Color.FromArgb(180, 2, 18, 29),
+                        BlurRadius = 10,
                         ShadowDepth = 0,
-                        Opacity = 0.6
+                        Opacity = 0.65
                     }
                 };
 
-                var maskEllipse = new Ellipse
+                var glow = new Ellipse
                 {
                     Margin = new Thickness(6),
-                    Fill = new SolidColorBrush(Color.FromArgb(65, 255, 255, 255)),
-                    Stroke = new SolidColorBrush(Color.FromArgb(160, 24, 148, 196)),
-                    StrokeThickness = 1.5
+                    Stroke = new SolidColorBrush(Color.FromArgb(150, 12, 63, 126)),
+                    StrokeThickness = 1.8,
+                    Fill = new RadialGradientBrush
+                    {
+                        GradientOrigin = new Point(0.35, 0.35),
+                        Center = new Point(0.5, 0.5),
+                        RadiusX = 0.6,
+                        RadiusY = 0.6,
+                        GradientStops =
+                        {
+                            new GradientStop(Color.FromArgb(40, 255, 255, 255), 0.0),
+                            new GradientStop(Color.FromArgb(10, 255, 255, 255), 0.6),
+                            new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0)
+                        }
+                    }
                 };
 
-                cell.Children.Add(borderEllipse);
-                cell.Children.Add(maskEllipse);
+                cell.Children.Add(rim);
+                cell.Children.Add(glow);
                 Grid.SetRow(cell, row);
                 Grid.SetColumn(cell, column);
                 SlotGrid.Children.Add(cell);
@@ -87,6 +99,7 @@ public partial class MainWindow : Window
     private void RefreshLayout()
     {
         UpdateIndicatorGeometry();
+        UpdateBoardMask();
         foreach (var (position, ellipse) in _tokenVisuals)
         {
             PositionToken(ellipse, position.Row, position.Column);
@@ -124,6 +137,38 @@ public partial class MainWindow : Window
         Canvas.SetTop(ColumnIndicator, y);
     }
 
+    private void UpdateBoardMask()
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        var width = BoardCanvas.ActualWidth;
+        var height = BoardCanvas.ActualHeight;
+        if (width <= 0 || height <= 0)
+        {
+            return;
+        }
+
+        var baseGeometry = new RectangleGeometry(new Rect(0, 0, width, height), 22, 22);
+        var cellSize = width / GameBoard.Columns;
+        var holeRadius = cellSize * 0.36;
+
+        Geometry boardGeometry = baseGeometry;
+        for (var row = 0; row < GameBoard.Rows; row++)
+        {
+            for (var column = 0; column < GameBoard.Columns; column++)
+            {
+                var center = new Point(column * cellSize + cellSize / 2, row * cellSize + cellSize / 2);
+                var hole = new EllipseGeometry(center, holeRadius, holeRadius);
+                boardGeometry = Geometry.Combine(boardGeometry, hole, GeometryCombineMode.Exclude, Transform.Identity);
+            }
+        }
+
+        BoardFrontPath.Data = boardGeometry;
+    }
+
     private void MoveIndicator(int direction)
     {
         if (_isBusy || !_isPlayerTurn)
@@ -142,6 +187,63 @@ public partial class MainWindow : Window
     }
 
     private async void DropButton_OnClick(object sender, RoutedEventArgs e) => await HandlePlayerMoveAsync();
+
+    private void SelectionCanvas_OnMouseMove(object sender, MouseEventArgs e)
+    {
+        if (sender is not FrameworkElement element)
+        {
+            return;
+        }
+
+        var pointer = e.GetPosition(element);
+        UpdateSelectionFromPointer(pointer, element.ActualWidth);
+    }
+
+    private void SelectionCanvas_OnMouseLeave(object sender, MouseEventArgs e)
+    {
+        // No specific action required on leave for now, but keeping the handler allows
+        // future visual feedback (such as hiding the indicator) without altering logic.
+    }
+
+    private async void SelectionCanvas_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FrameworkElement element)
+        {
+            return;
+        }
+
+        var pointer = e.GetPosition(element);
+        UpdateSelectionFromPointer(pointer, element.ActualWidth);
+        await HandlePlayerMoveAsync();
+    }
+
+    private void UpdateSelectionFromPointer(Point pointer, double surfaceWidth)
+    {
+        if (_isBusy || !_isPlayerTurn)
+        {
+            return;
+        }
+
+        if (surfaceWidth <= 0)
+        {
+            return;
+        }
+
+        var columnWidth = surfaceWidth / GameBoard.Columns;
+        if (columnWidth <= 0)
+        {
+            return;
+        }
+
+        var column = (int)Math.Floor(pointer.X / columnWidth);
+        column = Math.Clamp(column, 0, GameBoard.Columns - 1);
+
+        if (column != _selectedColumn)
+        {
+            _selectedColumn = column;
+            UpdateIndicatorGeometry();
+        }
+    }
 
     private async Task HandlePlayerMoveAsync()
     {

@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <SolidColorBrush x:Key="BoardBaseBrush" Color="#0B4F6C" />
-        <SolidColorBrush x:Key="BoardHighlightBrush" Color="#1894C4" />
+        <SolidColorBrush x:Key="BoardBaseBrush" Color="#0E4A96" />
+        <SolidColorBrush x:Key="BoardHighlightBrush" Color="#1C7DD7" />
         <SolidColorBrush x:Key="PlayerOneBrush" Color="#FFE066" />
         <SolidColorBrush x:Key="PlayerTwoBrush" Color="#FF6B6B" />
         <Style x:Key="BoardButton" TargetType="Button">
