@@ -35,7 +35,15 @@
                 <DropShadowEffect Color="#001018" BlurRadius="16" ShadowDepth="0" Opacity="0.45" />
             </Border.Effect>
             <Grid>
-                <Canvas x:Name="IndicatorCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Center" Height="42" Margin="10,0">
+                <Canvas x:Name="IndicatorCanvas"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Height="42"
+                        Margin="10,0"
+                        MouseMove="SelectionCanvas_OnMouseMove"
+                        MouseLeave="SelectionCanvas_OnMouseLeave"
+                        MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
+                        Cursor="Hand">
                     <Polygon x:Name="ColumnIndicator" Fill="#FFE066" Stroke="#F7C948" StrokeThickness="2" Points="0,0 36,0 18,26" />
                 </Canvas>
             </Grid>
@@ -51,8 +59,15 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
                     <Border Background="#0A3D58" CornerRadius="18" />
-                    <Canvas x:Name="BoardCanvas" Background="Transparent" ClipToBounds="True" />
-                    <Grid Margin="10" x:Name="SlotGrid" IsHitTestVisible="False">
+                    <Canvas x:Name="BoardCanvas"
+                            Background="Transparent"
+                            ClipToBounds="True"
+                            MouseMove="SelectionCanvas_OnMouseMove"
+                            MouseLeave="SelectionCanvas_OnMouseLeave"
+                            MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
+                            Cursor="Hand" />
+                    <Path x:Name="BoardFrontPath" Fill="#155DA8" Stroke="#0D3C70" StrokeThickness="6" IsHitTestVisible="False" />
+                    <Grid x:Name="SlotGrid" IsHitTestVisible="False">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
