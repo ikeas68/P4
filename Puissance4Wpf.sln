@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puissance4Game", "Puissance4Game\\Puissance4Game.csproj", "{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puissance4Game.Tests", "Puissance4Game.Tests\\Puissance4Game.Tests.csproj", "{C56FF4DA-49CA-49EF-A77E-255AA4CFF54F}"
+EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
         {B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
         {B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
         {B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}.Release|Any CPU.Build.0 = Release|Any CPU
+        {C56FF4DA-49CA-49EF-A77E-255AA4CFF54F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {C56FF4DA-49CA-49EF-A77E-255AA4CFF54F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {C56FF4DA-49CA-49EF-A77E-255AA4CFF54F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {C56FF4DA-49CA-49EF-A77E-255AA4CFF54F}.Release|Any CPU.Build.0 = Release|Any CPU
     EndGlobalSection
     GlobalSection(SolutionProperties) = preSolution
         HideSolutionNode = FALSE
