@@ -1,0 +1,134 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3072 >>
+stream
+BT
+/F1 12 Tf
+14 TL
+1 0 0 1 50 780 Tm
+(Guide utilisateur - Puissance 4) Tj
+T*
+() Tj
+T*
+() Tj
+T*
+(Présentation du jeu) Tj
+T*
+() Tj
+T*
+(Puissance 4 est un jeu de stratégie pour deux joueurs où l'objectif est d'aligner quatre pions de sa couleur dans une grille de 7 colonnes et 6 lignes.) Tj
+T*
+(Dans cette version, vous affrontez l'ordinateur : vous jouez avec les pions rouges et l'IA répond avec les pions jaunes.) Tj
+T*
+() Tj
+T*
+(Interface principale) Tj
+T*
+() Tj
+T*
+(La fenêtre du jeu est organisée en plusieurs zones pour vous guider :) Tj
+T*
+(• Bandeau supérieur : choisissez la difficulté de l'IA et démarrez une nouvelle partie à tout moment.) Tj
+T*
+(• Barre d'indication : un triangle jaune apparaît au-dessus du plateau pour indiquer la colonne ciblée lorsque la souris survole le plateau.) Tj
+T*
+(• Plateau : le damier bleu au centre affiche les emplacements disponibles et les jetons placés.) Tj
+T*
+(• Message d'état : un texte en bas de l'écran récapitule les instructions et le résultat des manches.) Tj
+T*
+() Tj
+T*
+(Commandes) Tj
+T*
+() Tj
+T*
+(Souris) Tj
+T*
+(• Survolez le plateau pour afficher le triangle jaune sur la colonne souhaitée.) Tj
+T*
+(• Cliquez sur la colonne désirée pour y laisser tomber votre jeton.) Tj
+T*
+(• Lorsque le pointeur sort du plateau, l'indicateur disparaît afin de ne pas gêner la lecture du jeu.) Tj
+T*
+(Clavier) Tj
+T*
+(• Flèche gauche / flèche droite : déplacez la colonne sélectionnée sans utiliser la souris.) Tj
+T*
+(• Barre d'espace ou flèche bas : laissez tomber un jeton dans la colonne actuelle.) Tj
+T*
+(• Les commandes clavier restent disponibles même lorsque l'indicateur visuel est masqué.) Tj
+T*
+(Nouvelle partie) Tj
+T*
+(• Utilisez le bouton "Nouvelle partie" pour remettre le plateau à zéro et conserver la difficulté choisie.) Tj
+T*
+() Tj
+T*
+(Niveaux de difficulté) Tj
+T*
+() Tj
+T*
+(Quatre niveaux déterminent la profondeur de réflexion de l'IA :) Tj
+T*
+(• 1 - Débutant : coups rapides et parfait pour découvrir les règles.) Tj
+T*
+(• 2 - Intermédiaire : l'IA anticipe plusieurs coups à l'avance et punit les erreurs évidentes.) Tj
+T*
+(• 3 - Avancé : stratégie équilibrée qui défend activement et cherche les alignements rapides.) Tj
+T*
+(• 4 - Expert : recherche approfondie pour un véritable défi tactique.) Tj
+T*
+() Tj
+T*
+(Déroulement d'une partie) Tj
+T*
+() Tj
+T*
+(1. Choisissez la difficulté souhaitée avant de commencer.) Tj
+T*
+(2. Jouez votre premier coup : la zone d'état confirme votre action.) Tj
+T*
+(3. L'ordinateur joue ensuite automatiquement ; le triangle jaune se masque pendant sa réflexion.) Tj
+T*
+(4. Continuez jusqu'à ce qu'un joueur aligne quatre pions ou que le plateau soit rempli.) Tj
+T*
+() Tj
+T*
+(Conseils rapides) Tj
+T*
+() Tj
+T*
+(• Conservez le centre du plateau pour multiplier les possibilités d'alignement.) Tj
+T*
+(• Anticipez deux coups à l'avance afin de créer ou de bloquer des menaces simultanées.) Tj
+T*
+(• Profitez des niveaux bas pour vous entraîner avant d'affronter l'IA experte.) Tj
+T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000003365 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3435
+%%EOF
