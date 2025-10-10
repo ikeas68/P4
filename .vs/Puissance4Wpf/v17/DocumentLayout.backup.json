@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "E:\\@PROJET VS\\P4\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}|Puissance4Game\\Puissance4Game.csproj|e:\\@projet vs\\p4\\puissance4game\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}|Puissance4Game\\Puissance4Game.csproj|solutionrelative:puissance4game\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}|Puissance4Game\\Puissance4Game.csproj|e:\\@projet vs\\p4\\puissance4game\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}|Puissance4Game\\Puissance4Game.csproj|solutionrelative:puissance4game\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}|Puissance4Game\\Puissance4Game.csproj|e:\\@projet vs\\p4\\puissance4game\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B3A3A25F-AC54-4CF5-98AF-49FF2E646B6D}|Puissance4Game\\Puissance4Game.csproj|solutionrelative:puissance4game\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,24 +38,25 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "E:\\@PROJET VS\\P4\\Puissance4Game\\MainWindow.xaml",
               "RelativeDocumentMoniker": "Puissance4Game\\MainWindow.xaml",
               "ToolTip": "E:\\@PROJET VS\\P4\\Puissance4Game\\MainWindow.xaml",
               "RelativeToolTip": "Puissance4Game\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-10-10T09:00:52.539Z"
+              "WhenOpened": "2025-10-10T09:00:52.539Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "E:\\@PROJET VS\\P4\\Puissance4Game\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "Puissance4Game\\MainWindow.xaml.cs",
               "ToolTip": "E:\\@PROJET VS\\P4\\Puissance4Game\\MainWindow.xaml.cs",
               "RelativeToolTip": "Puissance4Game\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAOUAAAAAAAAAAAAewPEAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAEMBAAAAAAAAAAAAAPEAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-10T08:59:27.679Z",
               "EditorCaption": ""
