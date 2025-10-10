@@ -214,9 +214,16 @@ namespace Puissance4Game
             UpdateSelectionFromPointer(pointer, element.ActualWidth);
         }
 
+        private void SelectionCanvas_OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            // Reserved for potential future behaviour.
+            this.IndicatorCanvas.Visibility = Visibility.Visible;
+        }
+
         private void SelectionCanvas_OnMouseLeave(object sender, MouseEventArgs e)
         {
             // Reserved for potential future behaviour.
+            this.IndicatorCanvas.Visibility = Visibility.Collapsed;
         }
 
         private async void SelectionCanvas_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

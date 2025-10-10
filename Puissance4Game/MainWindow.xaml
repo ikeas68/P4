@@ -92,6 +92,7 @@
                             ClipToBounds="True"
                             MouseMove="SelectionCanvas_OnMouseMove"
                             MouseLeave="SelectionCanvas_OnMouseLeave"
+                            MouseEnter="SelectionCanvas_OnMouseEnter"
                             MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
                             Cursor="Hand" />
                     <Path x:Name="BoardFrontPath"
@@ -130,7 +131,9 @@
                 VerticalAlignment="Center"
                 MouseMove="SelectionCanvas_OnMouseMove"
                 MouseLeave="SelectionCanvas_OnMouseLeave"
+                MouseEnter="SelectionCanvas_OnMouseEnter"
                 MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
+                Visibility="Collapsed"
                 Cursor="Hand">
             <Polygon x:Name="ColumnIndicator"
                      Fill="#FFE066"
