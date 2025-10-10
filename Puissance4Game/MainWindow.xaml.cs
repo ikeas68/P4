@@ -11,514 +11,568 @@ using System.Windows.Shapes;
 using Puissance4Game.GameLogic;
 using Puissance4Game.Models;
 
-namespace Puissance4Game;
-
-public partial class MainWindow : Window
+namespace Puissance4Game
 {
-    private readonly GameBoard _board = new();
-    private MinimaxAi _ai = new(2);
-    private readonly Dictionary<(int Row, int Column), Ellipse> _tokenVisuals = new();
-    private readonly List<Storyboard> _activeWinAnimations = new();
-
-    private int _selectedColumn = GameBoard.Columns / 2;
-    private bool _isPlayerTurn = true;
-    private bool _isBusy;
-
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
-        Loaded += OnLoaded;
-    }
+        private readonly GameBoard _board = new GameBoard();
+        private MinimaxAi _ai = new MinimaxAi(2);
+        private readonly Dictionary<(int Row, int Column), Ellipse> _tokenVisuals = new Dictionary<(int Row, int Column), Ellipse>();
+        private readonly List<Storyboard> _activeWinAnimations = new List<Storyboard>();
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        BuildSlotGrid();
-        DifficultyBox.SelectedIndex = 1;
-        BoardCanvas.SizeChanged += (_, _) => RefreshLayout();
-        IndicatorCanvas.SizeChanged += (_, _) => UpdateIndicatorGeometry();
-        StartNewGame();
-        Keyboard.Focus(this);
-    }
+        private int _selectedColumn = GameBoard.Columns / 2;
+        private bool _isPlayerTurn = true;
+        private bool _isBusy;
 
-    private void BuildSlotGrid()
-    {
-        SlotGrid.Children.Clear();
-        for (var row = 0; row < GameBoard.Rows; row++)
+        public MainWindow()
         {
-            for (var column = 0; column < GameBoard.Columns; column++)
-            {
-                var cell = new Grid
-                {
-                    Margin = new Thickness(4),
-                    IsHitTestVisible = false
-                };
-
-                var rim = new Ellipse
-                {
-                    Fill = Brushes.Transparent,
-                    Stroke = new SolidColorBrush(Color.FromArgb(180, 236, 246, 255)),
-                    StrokeThickness = 3,
-                    Effect = new DropShadowEffect
-                    {
-                        Color = Color.FromArgb(180, 2, 18, 29),
-                        BlurRadius = 10,
-                        ShadowDepth = 0,
-                        Opacity = 0.65
-                    }
-                };
-
-                var glow = new Ellipse
-                {
-                    Margin = new Thickness(6),
-                    Stroke = new SolidColorBrush(Color.FromArgb(150, 12, 63, 126)),
-                    StrokeThickness = 1.8,
-                    Fill = new RadialGradientBrush
-                    {
-                        GradientOrigin = new Point(0.35, 0.35),
-                        Center = new Point(0.5, 0.5),
-                        RadiusX = 0.6,
-                        RadiusY = 0.6,
-                        GradientStops =
-                        {
-                            new GradientStop(Color.FromArgb(40, 255, 255, 255), 0.0),
-                            new GradientStop(Color.FromArgb(10, 255, 255, 255), 0.6),
-                            new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0)
-                        }
-                    }
-                };
-
-                cell.Children.Add(rim);
-                cell.Children.Add(glow);
-                Grid.SetRow(cell, row);
-                Grid.SetColumn(cell, column);
-                SlotGrid.Children.Add(cell);
-            }
-        }
-    }
-
-    private void RefreshLayout()
-    {
-        UpdateIndicatorGeometry();
-        UpdateBoardMask();
-        foreach (var (position, ellipse) in _tokenVisuals)
-        {
-            PositionToken(ellipse, position.Row, position.Column);
-        }
-    }
-
-    private void UpdateIndicatorGeometry()
-    {
-        if (!IsLoaded)
-        {
-            return;
+            InitializeComponent();
+            Loaded += OnLoaded;
         }
 
-        var boardWidth = BoardCanvas.ActualWidth;
-        if (boardWidth <= 0)
+        private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            return;
+            BuildSlotGrid();
+            DifficultyBox.SelectedIndex = 1;
+            BoardCanvas.SizeChanged += OnBoardCanvasSizeChanged;
+            IndicatorCanvas.SizeChanged += OnIndicatorCanvasSizeChanged;
+            StartNewGame();
+            Keyboard.Focus(this);
         }
 
-        IndicatorCanvas.Width = boardWidth;
-        var cellSize = boardWidth / GameBoard.Columns;
-        var indicatorWidth = cellSize * 0.6;
-        var indicatorHeight = IndicatorCanvas.ActualHeight > 0 ? IndicatorCanvas.ActualHeight * 0.7 : 26;
-
-        ColumnIndicator.Points = new PointCollection
+        private void OnBoardCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            new(0, 0),
-            new(indicatorWidth, 0),
-            new(indicatorWidth / 2, indicatorHeight)
-        };
-
-        var x = _selectedColumn * cellSize + (cellSize - indicatorWidth) / 2;
-        var y = (IndicatorCanvas.ActualHeight - indicatorHeight) / 2;
-        Canvas.SetLeft(ColumnIndicator, x);
-        Canvas.SetTop(ColumnIndicator, y);
-    }
-
-    private void UpdateBoardMask()
-    {
-        if (!IsLoaded)
-        {
-            return;
+            RefreshLayout();
         }
 
-        var width = BoardCanvas.ActualWidth;
-        var height = BoardCanvas.ActualHeight;
-        if (width <= 0 || height <= 0)
+        private void OnIndicatorCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            return;
-        }
-
-        var baseGeometry = new RectangleGeometry(new Rect(0, 0, width, height), 22, 22);
-        var cellSize = width / GameBoard.Columns;
-        var holeRadius = cellSize * 0.36;
-
-        Geometry boardGeometry = baseGeometry;
-        for (var row = 0; row < GameBoard.Rows; row++)
-        {
-            for (var column = 0; column < GameBoard.Columns; column++)
-            {
-                var center = new Point(column * cellSize + cellSize / 2, row * cellSize + cellSize / 2);
-                var hole = new EllipseGeometry(center, holeRadius, holeRadius);
-                boardGeometry = Geometry.Combine(boardGeometry, hole, GeometryCombineMode.Exclude, Transform.Identity);
-            }
-        }
-
-        BoardFrontPath.Data = boardGeometry;
-    }
-
-    private void MoveIndicator(int direction)
-    {
-        if (_isBusy || !_isPlayerTurn)
-        {
-            return;
-        }
-
-        var newColumn = Math.Clamp(_selectedColumn + direction, 0, GameBoard.Columns - 1);
-        if (newColumn == _selectedColumn)
-        {
-            return;
-        }
-
-        _selectedColumn = newColumn;
-        UpdateIndicatorGeometry();
-    }
-
-    private async void DropButton_OnClick(object sender, RoutedEventArgs e) => await HandlePlayerMoveAsync();
-
-    private void SelectionCanvas_OnMouseMove(object sender, MouseEventArgs e)
-    {
-        if (sender is not FrameworkElement element)
-        {
-            return;
-        }
-
-        var pointer = e.GetPosition(element);
-        UpdateSelectionFromPointer(pointer, element.ActualWidth);
-    }
-
-    private void SelectionCanvas_OnMouseLeave(object sender, MouseEventArgs e)
-    {
-        // No specific action required on leave for now, but keeping the handler allows
-        // future visual feedback (such as hiding the indicator) without altering logic.
-    }
-
-    private async void SelectionCanvas_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-    {
-        if (sender is not FrameworkElement element)
-        {
-            return;
-        }
-
-        var pointer = e.GetPosition(element);
-        UpdateSelectionFromPointer(pointer, element.ActualWidth);
-        await HandlePlayerMoveAsync();
-    }
-
-    private void UpdateSelectionFromPointer(Point pointer, double surfaceWidth)
-    {
-        if (_isBusy || !_isPlayerTurn)
-        {
-            return;
-        }
-
-        if (surfaceWidth <= 0)
-        {
-            return;
-        }
-
-        var columnWidth = surfaceWidth / GameBoard.Columns;
-        if (columnWidth <= 0)
-        {
-            return;
-        }
-
-        var column = (int)Math.Floor(pointer.X / columnWidth);
-        column = Math.Clamp(column, 0, GameBoard.Columns - 1);
-
-        if (column != _selectedColumn)
-        {
-            _selectedColumn = column;
             UpdateIndicatorGeometry();
         }
-    }
 
-    private async Task HandlePlayerMoveAsync()
-    {
-        if (_isBusy || !_isPlayerTurn)
+        private void BuildSlotGrid()
         {
-            return;
-        }
-
-        if (!_board.CanDrop(_selectedColumn))
-        {
-            StatusText.Text = "Cette colonne est pleine. Choisissez-en une autre.";
-            return;
-        }
-
-        _isBusy = true;
-        StopWinningAnimations();
-
-        var move = await PlaceTokenAsync(_selectedColumn, GameBoard.PlayerOne, (Brush)FindResource("PlayerOneBrush"));
-        if (move.Row < 0)
-        {
-            _isBusy = false;
-            return;
-        }
-
-        if (move.IsWinningMove)
-        {
-            HighlightWinningTokens(move.WinningPositions);
-            StatusText.Text = "Bravo ! Vous avez gagné !";
-            _isPlayerTurn = false;
-            _isBusy = false;
-            return;
-        }
-
-        if (move.IsDraw)
-        {
-            StatusText.Text = "Match nul !";
-            _isPlayerTurn = false;
-            _isBusy = false;
-            return;
-        }
-
-        _isPlayerTurn = false;
-        StatusText.Text = "L'ordinateur réfléchit...";
-        _isBusy = false;
-        await PlayAiMoveAsync();
-    }
-
-    private async Task PlayAiMoveAsync()
-    {
-        if (_isPlayerTurn)
-        {
-            return;
-        }
-
-        _isBusy = true;
-        await Task.Delay(350);
-
-        var aiColumn = _ai.ChooseColumn(_board, GameBoard.PlayerTwo, GameBoard.PlayerOne);
-        if (aiColumn < 0)
-        {
-            _isBusy = false;
-            return;
-        }
-
-        _selectedColumn = aiColumn;
-        UpdateIndicatorGeometry();
-
-        var move = await PlaceTokenAsync(aiColumn, GameBoard.PlayerTwo, (Brush)FindResource("PlayerTwoBrush"));
-        if (move.Row < 0)
-        {
-            _isBusy = false;
-            return;
-        }
-
-        if (move.IsWinningMove)
-        {
-            HighlightWinningTokens(move.WinningPositions);
-            StatusText.Text = "L'ordinateur gagne cette manche.";
-            _isPlayerTurn = false;
-            _isBusy = false;
-            return;
-        }
-
-        if (move.IsDraw)
-        {
-            StatusText.Text = "Match nul !";
-            _isPlayerTurn = false;
-            _isBusy = false;
-            return;
-        }
-
-        _isPlayerTurn = true;
-        StatusText.Text = "À vous de jouer.";
-        _isBusy = false;
-        UpdateIndicatorGeometry();
-    }
-
-    private async Task<MoveResult> PlaceTokenAsync(int column, int player, Brush brush)
-    {
-        var row = _board.DropPiece(column, player);
-        if (row < 0)
-        {
-            return new MoveResult(-1, column, false, false, Array.Empty<(int, int)>());
-        }
-
-        var ellipse = CreateTokenEllipse(brush);
-        _tokenVisuals[(row, column)] = ellipse;
-        BoardCanvas.Children.Add(ellipse);
-
-        PositionToken(ellipse, row, column);
-        await AnimateTokenDropAsync(ellipse, row, column);
-
-        var winningSequence = _board.GetWinningSequence(row, column, player);
-        var isWinning = winningSequence.Count >= 4;
-        var isDraw = _board.IsFull();
-
-        return new MoveResult(row, column, isWinning, isDraw, winningSequence);
-    }
-
-    private Ellipse CreateTokenEllipse(Brush brush)
-    {
-        return new Ellipse
-        {
-            Fill = brush,
-            Stroke = Brushes.White,
-            StrokeThickness = 2,
-            Effect = new DropShadowEffect
+            SlotGrid.Children.Clear();
+            for (var row = 0; row < GameBoard.Rows; row++)
             {
-                Color = Colors.Black,
-                BlurRadius = 18,
-                ShadowDepth = 0,
-                Opacity = 0.45
-            }
-        };
-    }
-
-    private void PositionToken(Ellipse ellipse, int row, int column)
-    {
-        var cellSize = BoardCanvas.ActualWidth / GameBoard.Columns;
-        if (cellSize <= 0)
-        {
-            return;
-        }
-
-        var tokenSize = cellSize * 0.72;
-        ellipse.Width = tokenSize;
-        ellipse.Height = tokenSize;
-
-        var left = column * cellSize + (cellSize - tokenSize) / 2;
-        var top = row * cellSize + (cellSize - tokenSize) / 2;
-
-        Canvas.SetLeft(ellipse, left);
-        Canvas.SetTop(ellipse, top);
-    }
-
-    private Task AnimateTokenDropAsync(Ellipse ellipse, int row, int column)
-    {
-        var cellSize = BoardCanvas.ActualWidth / GameBoard.Columns;
-        var targetTop = row * cellSize + (cellSize - ellipse.Height) / 2;
-
-        var translate = new TranslateTransform
-        {
-            Y = -(targetTop + ellipse.Height + 30)
-        };
-        ellipse.RenderTransform = translate;
-
-        var animation = new DoubleAnimation
-        {
-            To = 0,
-            Duration = TimeSpan.FromMilliseconds(420),
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
-        };
-
-        var completionSource = new TaskCompletionSource<bool>();
-        animation.Completed += (_, _) =>
-        {
-            translate.BeginAnimation(TranslateTransform.YProperty, null);
-            ellipse.RenderTransform = null;
-            completionSource.TrySetResult(true);
-        };
-
-        translate.BeginAnimation(TranslateTransform.YProperty, animation);
-
-        return completionSource.Task;
-    }
-
-    private void HighlightWinningTokens(IReadOnlyList<(int Row, int Column)> positions)
-    {
-        StopWinningAnimations();
-
-        foreach (var position in positions)
-        {
-            if (_tokenVisuals.TryGetValue(position, out var ellipse))
-            {
-                var animation = new DoubleAnimation
+                for (var column = 0; column < GameBoard.Columns; column++)
                 {
-                    From = 1,
-                    To = 0.2,
-                    Duration = TimeSpan.FromMilliseconds(320),
-                    AutoReverse = true,
-                    RepeatBehavior = RepeatBehavior.Forever
-                };
+                    var cell = new Grid
+                    {
+                        Margin = new Thickness(4),
+                        IsHitTestVisible = false
+                    };
 
-                var storyboard = new Storyboard();
-                storyboard.Children.Add(animation);
-                Storyboard.SetTarget(animation, ellipse);
-                Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
-                storyboard.Begin();
-                _activeWinAnimations.Add(storyboard);
+                    var rim = new Ellipse
+                    {
+                        Fill = Brushes.Transparent,
+                        Stroke = new SolidColorBrush(Color.FromArgb(180, 236, 246, 255)),
+                        StrokeThickness = 3,
+                        Effect = new DropShadowEffect
+                        {
+                            Color = Color.FromArgb(180, 2, 18, 29),
+                            BlurRadius = 10,
+                            ShadowDepth = 0,
+                            Opacity = 0.65
+                        }
+                    };
+
+                    var glow = new Ellipse
+                    {
+                        Margin = new Thickness(6),
+                        Stroke = new SolidColorBrush(Color.FromArgb(150, 12, 63, 126)),
+                        StrokeThickness = 1.8,
+                        Fill = new RadialGradientBrush
+                        {
+                            GradientOrigin = new Point(0.35, 0.35),
+                            Center = new Point(0.5, 0.5),
+                            RadiusX = 0.6,
+                            RadiusY = 0.6,
+                            GradientStops =
+                            {
+                                new GradientStop(Color.FromArgb(40, 255, 255, 255), 0.0),
+                                new GradientStop(Color.FromArgb(10, 255, 255, 255), 0.6),
+                                new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0)
+                            }
+                        }
+                    };
+
+                    cell.Children.Add(rim);
+                    cell.Children.Add(glow);
+                    Grid.SetRow(cell, row);
+                    Grid.SetColumn(cell, column);
+                    SlotGrid.Children.Add(cell);
+                }
             }
         }
-    }
 
-    private void StopWinningAnimations()
-    {
-        foreach (var storyboard in _activeWinAnimations)
+        private void RefreshLayout()
         {
-            storyboard.Stop();
+            UpdateIndicatorGeometry();
+            UpdateBoardMask();
+            foreach (var entry in _tokenVisuals)
+            {
+                PositionToken(entry.Value, entry.Key.Row, entry.Key.Column);
+            }
         }
 
-        foreach (var ellipse in _tokenVisuals.Values)
+        private void UpdateIndicatorGeometry()
         {
-            ellipse.Opacity = 1;
+            if (!IsLoaded)
+            {
+                return;
+            }
+
+            var boardWidth = BoardCanvas.ActualWidth;
+            if (boardWidth <= 0)
+            {
+                return;
+            }
+
+            IndicatorCanvas.Width = boardWidth;
+            var cellSize = boardWidth / GameBoard.Columns;
+            var indicatorWidth = cellSize * 0.6;
+            var indicatorHeight = IndicatorCanvas.ActualHeight > 0 ? IndicatorCanvas.ActualHeight * 0.7 : 26;
+
+            var points = new PointCollection
+            {
+                new Point(0, 0),
+                new Point(indicatorWidth, 0),
+                new Point(indicatorWidth / 2, indicatorHeight)
+            };
+            ColumnIndicator.Points = points;
+
+            var x = _selectedColumn * cellSize + (cellSize - indicatorWidth) / 2;
+            var y = (IndicatorCanvas.ActualHeight - indicatorHeight) / 2;
+            Canvas.SetLeft(ColumnIndicator, x);
+            Canvas.SetTop(ColumnIndicator, y);
         }
 
-        _activeWinAnimations.Clear();
-    }
+        private void UpdateBoardMask()
+        {
+            if (!IsLoaded)
+            {
+                return;
+            }
 
-    private void LeftButton_OnClick(object sender, RoutedEventArgs e) => MoveIndicator(-1);
+            var width = BoardCanvas.ActualWidth;
+            var height = BoardCanvas.ActualHeight;
+            if (width <= 0 || height <= 0)
+            {
+                return;
+            }
 
-    private void RightButton_OnClick(object sender, RoutedEventArgs e) => MoveIndicator(1);
+            var baseGeometry = new RectangleGeometry(new Rect(0, 0, width, height), 22, 22);
+            var cellSize = width / GameBoard.Columns;
+            var holeRadius = cellSize * 0.36;
 
-    private void Window_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Left)
+            Geometry boardGeometry = baseGeometry;
+            for (var row = 0; row < GameBoard.Rows; row++)
+            {
+                for (var column = 0; column < GameBoard.Columns; column++)
+                {
+                    var center = new Point(column * cellSize + cellSize / 2, row * cellSize + cellSize / 2);
+                    var hole = new EllipseGeometry(center, holeRadius, holeRadius);
+                    boardGeometry = Geometry.Combine(boardGeometry, hole, GeometryCombineMode.Exclude, Transform.Identity);
+                }
+            }
+
+            BoardFrontPath.Data = boardGeometry;
+        }
+
+        private void MoveIndicator(int direction)
+        {
+            if (_isBusy || !_isPlayerTurn)
+            {
+                return;
+            }
+
+            var newColumn = Clamp(_selectedColumn + direction, 0, GameBoard.Columns - 1);
+            if (newColumn == _selectedColumn)
+            {
+                return;
+            }
+
+            _selectedColumn = newColumn;
+            UpdateIndicatorGeometry();
+        }
+
+        private async void DropButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            await HandlePlayerMoveAsync();
+        }
+
+        private void SelectionCanvas_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+            if (element == null)
+            {
+                return;
+            }
+
+            var pointer = e.GetPosition(element);
+            UpdateSelectionFromPointer(pointer, element.ActualWidth);
+        }
+
+        private void SelectionCanvas_OnMouseLeave(object sender, MouseEventArgs e)
+        {
+            // Reserved for potential future behaviour.
+        }
+
+        private async void SelectionCanvas_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var element = sender as FrameworkElement;
+            if (element == null)
+            {
+                return;
+            }
+
+            var pointer = e.GetPosition(element);
+            UpdateSelectionFromPointer(pointer, element.ActualWidth);
+            await HandlePlayerMoveAsync();
+        }
+
+        private void UpdateSelectionFromPointer(Point pointer, double surfaceWidth)
+        {
+            if (_isBusy || !_isPlayerTurn)
+            {
+                return;
+            }
+
+            if (surfaceWidth <= 0)
+            {
+                return;
+            }
+
+            var columnWidth = surfaceWidth / GameBoard.Columns;
+            if (columnWidth <= 0)
+            {
+                return;
+            }
+
+            var column = (int)Math.Floor(pointer.X / columnWidth);
+            column = Clamp(column, 0, GameBoard.Columns - 1);
+
+            if (column != _selectedColumn)
+            {
+                _selectedColumn = column;
+                UpdateIndicatorGeometry();
+            }
+        }
+
+        private async Task HandlePlayerMoveAsync()
+        {
+            if (_isBusy || !_isPlayerTurn)
+            {
+                return;
+            }
+
+            if (!_board.CanDrop(_selectedColumn))
+            {
+                StatusText.Text = "Cette colonne est pleine. Choisissez-en une autre.";
+                return;
+            }
+
+            _isBusy = true;
+            StopWinningAnimations();
+
+            var move = await PlaceTokenAsync(_selectedColumn, GameBoard.PlayerOne, (Brush)FindResource("PlayerOneBrush"));
+            if (move.Row < 0)
+            {
+                _isBusy = false;
+                return;
+            }
+
+            if (move.IsWinningMove)
+            {
+                HighlightWinningTokens(move.WinningPositions);
+                StatusText.Text = "Bravo ! Vous avez gagné !";
+                _isPlayerTurn = false;
+                _isBusy = false;
+                return;
+            }
+
+            if (move.IsDraw)
+            {
+                StatusText.Text = "Match nul !";
+                _isPlayerTurn = false;
+                _isBusy = false;
+                return;
+            }
+
+            _isPlayerTurn = false;
+            StatusText.Text = "L'ordinateur réfléchit...";
+            _isBusy = false;
+            await PlayAiMoveAsync();
+        }
+
+        private async Task PlayAiMoveAsync()
+        {
+            if (_isPlayerTurn)
+            {
+                return;
+            }
+
+            _isBusy = true;
+            await Task.Delay(350);
+
+            var aiColumn = _ai.ChooseColumn(_board, GameBoard.PlayerTwo, GameBoard.PlayerOne);
+            if (aiColumn < 0)
+            {
+                _isBusy = false;
+                return;
+            }
+
+            _selectedColumn = aiColumn;
+            UpdateIndicatorGeometry();
+
+            var move = await PlaceTokenAsync(aiColumn, GameBoard.PlayerTwo, (Brush)FindResource("PlayerTwoBrush"));
+            if (move.Row < 0)
+            {
+                _isBusy = false;
+                return;
+            }
+
+            if (move.IsWinningMove)
+            {
+                HighlightWinningTokens(move.WinningPositions);
+                StatusText.Text = "L'ordinateur gagne cette manche.";
+                _isPlayerTurn = false;
+                _isBusy = false;
+                return;
+            }
+
+            if (move.IsDraw)
+            {
+                StatusText.Text = "Match nul !";
+                _isPlayerTurn = false;
+                _isBusy = false;
+                return;
+            }
+
+            _isPlayerTurn = true;
+            StatusText.Text = "À vous de jouer.";
+            _isBusy = false;
+            UpdateIndicatorGeometry();
+        }
+
+        private async Task<MoveResult> PlaceTokenAsync(int column, int player, Brush brush)
+        {
+            var row = _board.DropPiece(column, player);
+            if (row < 0)
+            {
+                return new MoveResult(-1, column, false, false, Array.Empty<(int, int)>());
+            }
+
+            var ellipse = CreateTokenEllipse(brush);
+            _tokenVisuals[(row, column)] = ellipse;
+            BoardCanvas.Children.Add(ellipse);
+
+            PositionToken(ellipse, row, column);
+            await AnimateTokenDropAsync(ellipse, row, column);
+
+            var winningSequence = _board.GetWinningSequence(row, column, player);
+            var isWinning = winningSequence.Count >= 4;
+            var isDraw = _board.IsFull();
+
+            return new MoveResult(row, column, isWinning, isDraw, winningSequence);
+        }
+
+        private Ellipse CreateTokenEllipse(Brush brush)
+        {
+            return new Ellipse
+            {
+                Fill = brush,
+                Stroke = Brushes.White,
+                StrokeThickness = 2,
+                Effect = new DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 18,
+                    ShadowDepth = 0,
+                    Opacity = 0.45
+                }
+            };
+        }
+
+        private void PositionToken(Ellipse ellipse, int row, int column)
+        {
+            var cellSize = BoardCanvas.ActualWidth / GameBoard.Columns;
+            if (cellSize <= 0)
+            {
+                return;
+            }
+
+            var tokenSize = cellSize * 0.72;
+            ellipse.Width = tokenSize;
+            ellipse.Height = tokenSize;
+
+            var left = column * cellSize + (cellSize - tokenSize) / 2;
+            var top = row * cellSize + (cellSize - tokenSize) / 2;
+
+            Canvas.SetLeft(ellipse, left);
+            Canvas.SetTop(ellipse, top);
+        }
+
+        private Task AnimateTokenDropAsync(Ellipse ellipse, int row, int column)
+        {
+            var cellSize = BoardCanvas.ActualWidth / GameBoard.Columns;
+            var targetTop = row * cellSize + (cellSize - ellipse.Height) / 2;
+
+            var translate = new TranslateTransform
+            {
+                Y = -(targetTop + ellipse.Height + 30)
+            };
+            ellipse.RenderTransform = translate;
+
+            var animation = new DoubleAnimation
+            {
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(420),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+            };
+
+            var completionSource = new TaskCompletionSource<bool>();
+            animation.Completed += delegate
+            {
+                translate.BeginAnimation(TranslateTransform.YProperty, null);
+                ellipse.RenderTransform = null;
+                completionSource.TrySetResult(true);
+            };
+
+            translate.BeginAnimation(TranslateTransform.YProperty, animation);
+
+            return completionSource.Task;
+        }
+
+        private void HighlightWinningTokens(IReadOnlyList<(int Row, int Column)> positions)
+        {
+            StopWinningAnimations();
+
+            foreach (var position in positions)
+            {
+                Ellipse ellipse;
+                if (_tokenVisuals.TryGetValue(position, out ellipse))
+                {
+                    var animation = new DoubleAnimation
+                    {
+                        From = 1,
+                        To = 0.2,
+                        Duration = TimeSpan.FromMilliseconds(320),
+                        AutoReverse = true,
+                        RepeatBehavior = RepeatBehavior.Forever
+                    };
+
+                    var storyboard = new Storyboard();
+                    storyboard.Children.Add(animation);
+                    Storyboard.SetTarget(animation, ellipse);
+                    Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
+                    storyboard.Begin();
+                    _activeWinAnimations.Add(storyboard);
+                }
+            }
+        }
+
+        private void StopWinningAnimations()
+        {
+            foreach (var storyboard in _activeWinAnimations)
+            {
+                storyboard.Stop();
+            }
+
+            foreach (var ellipse in _tokenVisuals.Values)
+            {
+                ellipse.Opacity = 1;
+            }
+
+            _activeWinAnimations.Clear();
+        }
+
+        private void LeftButton_OnClick(object sender, RoutedEventArgs e)
         {
             MoveIndicator(-1);
-            e.Handled = true;
         }
-        else if (e.Key == Key.Right)
+
+        private void RightButton_OnClick(object sender, RoutedEventArgs e)
         {
             MoveIndicator(1);
-            e.Handled = true;
         }
-        else if (e.Key is Key.Space or Key.Down)
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            _ = HandlePlayerMoveAsync();
-            e.Handled = true;
+            if (e.Key == Key.Left)
+            {
+                MoveIndicator(-1);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Right)
+            {
+                MoveIndicator(1);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Space || e.Key == Key.Down)
+            {
+                _ = HandlePlayerMoveAsync();
+                e.Handled = true;
+            }
         }
-    }
 
-    private void RestartButton_OnClick(object sender, RoutedEventArgs e) => StartNewGame();
-
-    private void StartNewGame()
-    {
-        _board.Reset();
-        StopWinningAnimations();
-        BoardCanvas.Children.Clear();
-        _tokenVisuals.Clear();
-        _selectedColumn = GameBoard.Columns / 2;
-        _isPlayerTurn = true;
-        _isBusy = false;
-        StatusText.Text = "Choisissez une colonne pour commencer.";
-        UpdateIndicatorGeometry();
-    }
-
-    private void DifficultyBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (DifficultyBox.SelectedItem is ComboBoxItem { Tag: string tagValue } && int.TryParse(tagValue, out var parsed))
+        private void RestartButton_OnClick(object sender, RoutedEventArgs e)
         {
-            _ai = new MinimaxAi(parsed);
+            StartNewGame();
         }
-        else if (DifficultyBox.SelectedItem is ComboBoxItem { Tag: int tagInt })
+
+        private void StartNewGame()
         {
-            _ai = new MinimaxAi(tagInt);
+            _board.Reset();
+            StopWinningAnimations();
+            BoardCanvas.Children.Clear();
+            _tokenVisuals.Clear();
+            _selectedColumn = GameBoard.Columns / 2;
+            _isPlayerTurn = true;
+            _isBusy = false;
+            StatusText.Text = "Choisissez une colonne pour commencer.";
+            UpdateIndicatorGeometry();
+        }
+
+        private void DifficultyBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedItem = DifficultyBox.SelectedItem as ComboBoxItem;
+            if (selectedItem == null)
+            {
+                return;
+            }
+
+            var tagString = selectedItem.Tag as string;
+            if (tagString != null)
+            {
+                int parsed;
+                if (int.TryParse(tagString, out parsed))
+                {
+                    _ai = new MinimaxAi(parsed);
+                }
+                return;
+            }
+
+            if (selectedItem.Tag is int tagValue)
+            {
+                _ai = new MinimaxAi(tagValue);
+            }
+        }
+
+        private static int Clamp(int value, int min, int max)
+        {
+            if (value < min)
+            {
+                return min;
+            }
+
+            if (value > max)
+            {
+                return max;
+            }
+
+            return value;
         }
     }
 }
