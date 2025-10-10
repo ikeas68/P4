@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Puissance4Game.GameLogic
 {
@@ -104,7 +103,7 @@ namespace Puissance4Game.GameLogic
         {
             foreach (var direction in Directions)
             {
-                var line = GetLine(row, column, direction.DeltaRow, direction.DeltaColumn, player);
+                var line = CollectAlignedPositions(row, column, direction.DeltaRow, direction.DeltaColumn, player);
                 if (line.Count >= 4)
                 {
                     return true;
@@ -123,7 +122,7 @@ namespace Puissance4Game.GameLogic
 
             foreach (var direction in Directions)
             {
-                var line = GetLine(row, column, direction.DeltaRow, direction.DeltaColumn, player);
+                var line = CollectAlignedPositions(row, column, direction.DeltaRow, direction.DeltaColumn, player);
                 if (line.Count >= 4)
                 {
                     return line;
@@ -141,27 +140,29 @@ namespace Puissance4Game.GameLogic
             (1, -1)
         };
 
-        private List<(int Row, int Column)> GetLine(int row, int column, int dr, int dc, int player)
+        private List<(int Row, int Column)> CollectAlignedPositions(int row, int column, int dr, int dc, int player)
         {
-            var positions = new List<(int Row, int Column)> { (row, column) };
+            var startRow = row;
+            var startColumn = column;
 
-            ExtendLine(row, column, dr, dc, player, positions);
-            ExtendLine(row, column, -dr, -dc, player, positions);
-
-            return positions.Distinct().ToList();
-        }
-
-        private void ExtendLine(int startRow, int startColumn, int dr, int dc, int player, ICollection<(int Row, int Column)> positions)
-        {
-            var row = startRow + dr;
-            var column = startColumn + dc;
-
-            while (IsInside(row, column) && _cells[row, column] == player)
+            while (IsInside(startRow - dr, startColumn - dc) && _cells[startRow - dr, startColumn - dc] == player)
             {
-                positions.Add((row, column));
-                row += dr;
-                column += dc;
+                startRow -= dr;
+                startColumn -= dc;
             }
+
+            var positions = new List<(int Row, int Column)>();
+            var currentRow = startRow;
+            var currentColumn = startColumn;
+
+            while (IsInside(currentRow, currentColumn) && _cells[currentRow, currentColumn] == player)
+            {
+                positions.Add((currentRow, currentColumn));
+                currentRow += dr;
+                currentColumn += dc;
+            }
+
+            return positions;
         }
 
         private static bool IsInside(int row, int column)
