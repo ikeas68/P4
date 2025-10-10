@@ -33,8 +33,7 @@ namespace Puissance4Game
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            BuildSlotGrid();
+        {            
             DifficultyBox.SelectedIndex = 1;
             BoardCanvas.SizeChanged += OnBoardCanvasSizeChanged;
             IndicatorCanvas.SizeChanged += OnIndicatorCanvasSizeChanged;
@@ -133,63 +132,7 @@ namespace Puissance4Game
         private void OnIndicatorCanvasSizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateIndicatorGeometry();
-        }
-
-        private void BuildSlotGrid()
-        {
-            SlotGrid.Children.Clear();
-            for (var row = 0; row < GameBoard.Rows; row++)
-            {
-                for (var column = 0; column < GameBoard.Columns; column++)
-                {
-                    var cell = new Grid
-                    {
-                        Margin = new Thickness(4),
-                        IsHitTestVisible = false
-                    };
-
-                    var rim = new Ellipse
-                    {
-                        Fill = Brushes.Transparent,
-                        Stroke = new SolidColorBrush(Color.FromArgb(180, 236, 246, 255)),
-                        StrokeThickness = 3,
-                        Effect = new DropShadowEffect
-                        {
-                            Color = Color.FromArgb(180, 2, 18, 29),
-                            BlurRadius = 10,
-                            ShadowDepth = 0,
-                            Opacity = 0.65
-                        }
-                    };
-
-                    var glow = new Ellipse
-                    {
-                        Margin = new Thickness(6),
-                        Stroke = new SolidColorBrush(Color.FromArgb(150, 12, 63, 126)),
-                        StrokeThickness = 1.8,
-                        Fill = new RadialGradientBrush
-                        {
-                            GradientOrigin = new Point(0.35, 0.35),
-                            Center = new Point(0.5, 0.5),
-                            RadiusX = 0.6,
-                            RadiusY = 0.6,
-                            GradientStops =
-                            {
-                                new GradientStop(Color.FromArgb(40, 255, 255, 255), 0.0),
-                                new GradientStop(Color.FromArgb(10, 255, 255, 255), 0.6),
-                                new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0)
-                            }
-                        }
-                    };
-
-                    cell.Children.Add(rim);
-                    cell.Children.Add(glow);
-                    Grid.SetRow(cell, row);
-                    Grid.SetColumn(cell, column);
-                    SlotGrid.Children.Add(cell);
-                }
-            }
-        }
+        }      
 
         private void RefreshLayout()
         {
@@ -301,6 +244,7 @@ namespace Puissance4Game
 
         private void SelectionCanvas_OnMouseEnter(object sender, MouseEventArgs e)
         {
+            if (_isBusy || !_isPlayerTurn) return;
             // Reserved for potential future behaviour.
             this.IndicatorCanvas.Visibility = Visibility.Visible;
         }
@@ -379,6 +323,7 @@ namespace Puissance4Game
             {
                 HighlightWinningTokens(move.WinningPositions);
                 StatusText.Text = "Bravo ! Vous avez gagné !";
+                this.IndicatorCanvas.Visibility = Visibility.Collapsed;
                 _isPlayerTurn = false;
                 _isBusy = false;
                 return;
@@ -387,6 +332,7 @@ namespace Puissance4Game
             if (move.IsDraw)
             {
                 StatusText.Text = "Match nul !";
+                this.IndicatorCanvas.Visibility = Visibility.Collapsed;
                 _isPlayerTurn = false;
                 _isBusy = false;
                 return;
@@ -429,6 +375,7 @@ namespace Puissance4Game
             {
                 HighlightWinningTokens(move.WinningPositions);
                 StatusText.Text = "L'ordinateur gagne cette manche.";
+                this.IndicatorCanvas.Visibility = Visibility.Collapsed;
                 _isPlayerTurn = false;
                 _isBusy = false;
                 return;
@@ -437,6 +384,7 @@ namespace Puissance4Game
             if (move.IsDraw)
             {
                 StatusText.Text = "Match nul !";
+                this.IndicatorCanvas.Visibility = Visibility.Collapsed;
                 _isPlayerTurn = false;
                 _isBusy = false;
                 return;
