@@ -15,4 +15,12 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
     <DefineConstants>$(DefineConstants);NET48</DefineConstants>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-windows7.0'">
+    <DefineConstants>$(DefineConstants);NET6_0_WINDOWS</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows7.0'">
+    <DefineConstants>$(DefineConstants);NET8_0_WINDOWS</DefineConstants>
+  </PropertyGroup>
 </Project>

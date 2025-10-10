@@ -1,5 +1,8 @@
+using Puissance4Game.GameLogic;
+using Puissance4Game.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,8 +12,6 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
-using Puissance4Game.GameLogic;
-using Puissance4Game.Models;
 
 namespace Puissance4Game
 {
@@ -45,6 +46,15 @@ namespace Puissance4Game
         private static string BuildVersionLabel()
         {
             var assembly = typeof(MainWindow).Assembly;
+
+            var a = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            var b = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+            var c = assembly.GetName().Version?.ToString();
+            var d = typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            var e = ShortInfoVersion();
+            var f = InfoVersionNoMeta();
+
+
             var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
                            ?? assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
                            ?? assembly.GetName().Version?.ToString()
@@ -53,6 +63,54 @@ namespace Puissance4Game
             var prefix = GetFrameworkPrefix();
             return string.IsNullOrEmpty(version) ? prefix : $"{prefix}{version}";
         }
+
+        static string ShortInfoVersion(int len = 8)
+        {
+            string iv = GetInformationalVersion();
+
+            int plus = iv.IndexOf('+');
+            if (plus < 0) return iv; // pas de metadata
+
+            string meta = iv.Substring(plus + 1);
+            string shortMeta = meta.Length > len ? meta.Substring(0, len) : meta;
+            return iv.Substring(0, plus + 1) + shortMeta;
+        }
+
+        public static string InfoVersionNoMeta()
+        {
+            string iv = GetInformationalVersion();
+            int plus = iv.IndexOf('+');
+            return plus < 0 ? iv : iv.Substring(0, plus);
+        }
+
+        private static string GetInformationalVersion()
+        {
+            try
+            {
+                var asm = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
+
+                var attr = (AssemblyInformationalVersionAttribute)
+                    Attribute.GetCustomAttribute(asm, typeof(AssemblyInformationalVersionAttribute));
+
+                if (attr != null && !string.IsNullOrEmpty(attr.InformationalVersion))
+                    return attr.InformationalVersion;
+
+                // Fallback : ProductVersion (peut contenir des métadonnées style commit)
+                try
+                {
+                    var fvi = FileVersionInfo.GetVersionInfo(asm.Location);
+                    if (!string.IsNullOrEmpty(fvi.ProductVersion))
+                        return fvi.ProductVersion;
+                }
+                catch { /* ignoré */ }
+            }
+            catch { /* ignoré */ }
+
+            // Dernier recours
+            return "1.0.0";
+        }
+
+
 
         private static string GetFrameworkPrefix()
         {
