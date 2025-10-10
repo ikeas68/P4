@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -38,6 +39,32 @@ namespace Puissance4Game
             IndicatorCanvas.SizeChanged += OnIndicatorCanvasSizeChanged;
             StartNewGame();
             Keyboard.Focus(this);
+            VersionTextBlock.Text = BuildVersionLabel();
+        }
+
+        private static string BuildVersionLabel()
+        {
+            var assembly = typeof(MainWindow).Assembly;
+            var version = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+                           ?? assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
+                           ?? assembly.GetName().Version?.ToString()
+                           ?? "";
+
+            var prefix = GetFrameworkPrefix();
+            return string.IsNullOrEmpty(version) ? prefix : $"{prefix}{version}";
+        }
+
+        private static string GetFrameworkPrefix()
+        {
+#if NET48
+            return "48-";
+#elif NET6_0_WINDOWS
+            return "C6-";
+#elif NET8_0_WINDOWS
+            return "C8-";
+#else
+            return string.Empty;
+#endif
         }
 
         private void OnBoardCanvasSizeChanged(object sender, SizeChangedEventArgs e)
