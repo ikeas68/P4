@@ -167,5 +167,12 @@
                    Foreground="White"
                    Text="Choisissez une colonne pour commencer."
                    TextAlignment="Center" />
+        <TextBlock Grid.Row="4"
+                   x:Name="VersionTextBlock"
+                   Margin="0,0,16,12"
+                   FontSize="12"
+                   Foreground="#B3FFFFFF"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom" />
     </Grid>
 </Window>
