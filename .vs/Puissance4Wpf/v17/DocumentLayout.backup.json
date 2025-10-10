@@ -18,12 +18,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:4:0:{fabf9319-47eb-497e-b8f6-d9f73fba5f55}"
@@ -49,8 +45,7 @@
               "ToolTip": "E:\\@PROJET VS\\P4\\Puissance4Game\\MainWindow.xaml",
               "RelativeToolTip": "Puissance4Game\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-10-10T09:00:52.539Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-10T09:00:52.539Z"
             },
             {
               "$type": "Document",
@@ -60,7 +55,7 @@
               "RelativeDocumentMoniker": "Puissance4Game\\MainWindow.xaml.cs",
               "ToolTip": "E:\\@PROJET VS\\P4\\Puissance4Game\\MainWindow.xaml.cs",
               "RelativeToolTip": "Puissance4Game\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAMoAAAAAAAAAAAAewNsAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAOUAAAAAAAAAAAAewPEAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-10T08:59:27.679Z",
               "EditorCaption": ""
