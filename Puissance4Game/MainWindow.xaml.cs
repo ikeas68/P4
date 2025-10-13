@@ -53,48 +53,107 @@ public partial class MainWindow : Window
                     IsHitTestVisible = false
                 };
 
-                var rim = new Ellipse
-                {
-                    Fill = Brushes.Transparent,
-                    Stroke = new SolidColorBrush(Color.FromArgb(180, 236, 246, 255)),
-                    StrokeThickness = 3,
-                    Effect = new DropShadowEffect
-                    {
-                        Color = Color.FromArgb(180, 2, 18, 29),
-                        BlurRadius = 10,
-                        ShadowDepth = 0,
-                        Opacity = 0.65
-                    }
-                };
+                //var rim = new Ellipse
+                //{
+                //    Fill = Brushes.Transparent,
+                //    Stroke = new SolidColorBrush(Color.FromArgb(180, 236, 246, 255)),
+                //    StrokeThickness = 3,
+                //    Effect = new DropShadowEffect
+                //    {
+                //        Color = Color.FromArgb(180, 2, 18, 29),
+                //        BlurRadius = 10,
+                //        ShadowDepth = 0,
+                //        Opacity = 0.65
+                //    }
+                //};
 
-                var glow = new Ellipse
-                {
-                    Margin = new Thickness(6),
-                    Stroke = new SolidColorBrush(Color.FromArgb(150, 12, 63, 126)),
-                    StrokeThickness = 1.8,
-                    Fill = new RadialGradientBrush
-                    {
-                        GradientOrigin = new Point(0.35, 0.35),
-                        Center = new Point(0.5, 0.5),
-                        RadiusX = 0.6,
-                        RadiusY = 0.6,
-                        GradientStops =
-                        {
-                            new GradientStop(Color.FromArgb(40, 255, 255, 255), 0.0),
-                            new GradientStop(Color.FromArgb(10, 255, 255, 255), 0.6),
-                            new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0)
-                        }
-                    }
-                };
+                //var glow = new Ellipse
+                //{
+                //    Margin = new Thickness(6),
+                //    Stroke = new SolidColorBrush(Color.FromArgb(150, 12, 63, 126)),
+                //    StrokeThickness = 1.8,
+                //    Fill = new RadialGradientBrush
+                //    {
+                //        GradientOrigin = new Point(0.35, 0.35),
+                //        Center = new Point(0.5, 0.5),
+                //        RadiusX = 0.6,
+                //        RadiusY = 0.6,
+                //        GradientStops =
+                //        {
+                //            new GradientStop(Color.FromArgb(40, 255, 255, 255), 0.0),
+                //            new GradientStop(Color.FromArgb(10, 255, 255, 255), 0.6),
+                //            new GradientStop(Color.FromArgb(0, 255, 255, 255), 1.0)
+                //        }
+                //    }
+                //};
+
+                var rim = CreateRectWithCircularHole(
+                            outerW: 50, outerH: 50,
+                            holeDiameter: 40,
+                            cornerRadius: 0,
+                            fill: Brushes.CornflowerBlue,
+                            stroke: Brushes.DimGray,
+                            strokeThickness: 0);
 
                 cell.Children.Add(rim);
-                cell.Children.Add(glow);
+                //cell.Children.Add(glow);
                 Grid.SetRow(cell, row);
                 Grid.SetColumn(cell, column);
                 SlotGrid.Children.Add(cell);
             }
         }
     }
+
+    /// <summary>
+    /// Crée un Path WPF représentant un rectangle avec un trou circulaire.
+    /// </summary>
+    /// <param name="outerW">Largeur du rectangle extérieur.</param>
+    /// <param name="outerH">Hauteur du rectangle extérieur.</param>
+    /// <param name="holeDiameter">Diamètre du trou (cercle).</param>
+    /// <param name="cornerRadius">Rayon d’arrondi des coins du rectangle extérieur (0 = coins vifs).</param>
+    /// <param name="holeCenter">Centre du trou (si null, centré automatiquement).</param>
+    /// <param name="fill">Brosse de remplissage (par défaut SteelBlue).</param>
+    /// <param name="stroke">Brosse de contour (par défaut Transparent).</param>
+    /// <param name="strokeThickness">Épaisseur du contour.</param>
+    /// <returns>Un Path prêt à être ajouté au visuel.</returns>
+    public static Path CreateRectWithCircularHole(
+        double outerW, double outerH,
+        double holeDiameter,
+        double cornerRadius = 0,
+        Point? holeCenter = null,
+        Brush? fill = null,
+        Brush? stroke = null,
+        double strokeThickness = 0)
+    {
+        // Géométrie extérieure (rectangle)
+        var outer = new RectangleGeometry(new Rect(0, 0, outerW, outerH), cornerRadius, cornerRadius);
+
+        // Centre du trou (par défaut : centre du rectangle)
+        var center = holeCenter ?? new Point(outerW / 2.0, outerH / 2.0);
+
+        // Géométrie intérieure (cercle = trou)
+        double r = holeDiameter / 2.0;
+        var inner = new EllipseGeometry(center, r, r);
+
+        // Soustraction : extérieur - intérieur
+        var ring = new CombinedGeometry(GeometryCombineMode.Exclude, outer, inner);
+
+        // Construction du Path
+        var rim = new Path
+        {
+            Data = ring,
+            Fill = fill ?? Brushes.SteelBlue,
+            Stroke = stroke ?? Brushes.Transparent,
+            StrokeThickness = strokeThickness,
+            SnapsToDevicePixels = true
+        };
+
+        // Pour un rendu net sur pixels entiers si StrokeThickness > 0
+        RenderOptions.SetEdgeMode(rim, EdgeMode.Aliased);
+
+        return rim;
+    }
+
 
     private void RefreshLayout()
     {
@@ -201,6 +260,7 @@ public partial class MainWindow : Window
 
     private void SelectionCanvas_OnMouseLeave(object sender, MouseEventArgs e)
     {
+        this.IndicatorCanvas.Visibility = Visibility.Collapsed;
         // No specific action required on leave for now, but keeping the handler allows
         // future visual feedback (such as hiding the indicator) without altering logic.
     }
@@ -520,5 +580,10 @@ public partial class MainWindow : Window
         {
             _ai = new MinimaxAi(tagInt);
         }
+    }
+
+    private void SelectionCanvas_OnMouseEnter(object sender, MouseEventArgs e)
+    {
+        this.IndicatorCanvas.Visibility = Visibility.Visible;
     }
 }

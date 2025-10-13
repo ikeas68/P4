@@ -90,6 +90,7 @@
                     <Canvas x:Name="BoardCanvas"
                             Background="Transparent"
                             ClipToBounds="True"
+                            MouseEnter="SelectionCanvas_OnMouseEnter"
                             MouseMove="SelectionCanvas_OnMouseMove"
                             MouseLeave="SelectionCanvas_OnMouseLeave"
                             MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
@@ -97,10 +98,13 @@
                     <Path x:Name="BoardFrontPath"
                           Fill="#155DA8"
                           Stroke="#0D3C70"
+                          Visibility="Collapsed"
                           StrokeThickness="6"
                           IsHitTestVisible="False" />
                     <Grid x:Name="SlotGrid"
-                          IsHitTestVisible="False">
+                          IsHitTestVisible="False"
+                          Background="Transparent">
+                        <!--Background="{StaticResource BoardBaseBrush}">-->
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*" />
                             <RowDefinition Height="*" />
@@ -126,6 +130,7 @@
         <Canvas x:Name="IndicatorCanvas"
                 Grid.Row="1"
                 Width="544"
+                Visibility="Collapsed"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Center"
                 MouseMove="SelectionCanvas_OnMouseMove"
