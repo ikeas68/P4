@@ -93,6 +93,7 @@
                             MouseEnter="SelectionCanvas_OnMouseEnter"
                             MouseMove="SelectionCanvas_OnMouseMove"
                             MouseLeave="SelectionCanvas_OnMouseLeave"
+                            MouseEnter="SelectionCanvas_OnMouseEnter"
                             MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
                             Cursor="Hand" />
                     <Path x:Name="BoardFrontPath"
@@ -135,7 +136,9 @@
                 VerticalAlignment="Center"
                 MouseMove="SelectionCanvas_OnMouseMove"
                 MouseLeave="SelectionCanvas_OnMouseLeave"
+                MouseEnter="SelectionCanvas_OnMouseEnter"
                 MouseLeftButtonUp="SelectionCanvas_OnMouseLeftButtonUp"
+                Visibility="Collapsed"
                 Cursor="Hand">
             <Polygon x:Name="ColumnIndicator"
                      Fill="#FFE066"
@@ -169,5 +172,12 @@
                    Foreground="White"
                    Text="Choisissez une colonne pour commencer."
                    TextAlignment="Center" />
+        <TextBlock Grid.Row="4"
+                   x:Name="VersionTextBlock"
+                   Margin="0,0,16,12"
+                   FontSize="12"
+                   Foreground="#B3FFFFFF"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom" />
     </Grid>
 </Window>
