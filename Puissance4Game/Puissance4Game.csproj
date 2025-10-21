@@ -10,6 +10,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Deterministic>false</Deterministic>
+    <ApplicationIcon>p4.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
@@ -23,4 +24,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows7.0'">
     <DefineConstants>$(DefineConstants);NET8_0_WINDOWS</DefineConstants>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Content Include="p4.ico" />
+  </ItemGroup>
 </Project>
