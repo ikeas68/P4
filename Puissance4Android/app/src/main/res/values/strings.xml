@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Puissance 4</string>
+    <string name="status_player_turn">À vous de jouer !</string>
+    <string name="status_ai_turn">L’IA réfléchit…</string>
+    <string name="status_player_wins">Vous avez gagné !</string>
+    <string name="status_ai_wins">L’IA a gagné.</string>
+    <string name="status_draw">Match nul.</string>
+    <string name="label_difficulty">Difficulté</string>
+    <string name="action_new_game">Nouvelle partie</string>
+    <string name="message_column_full">Colonne pleine !</string>
+</resources>
