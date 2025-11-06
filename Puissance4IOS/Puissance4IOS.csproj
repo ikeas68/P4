@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-ios</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Puissance4IOS</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <SupportedOSPlatformVersion>13.0</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Puissance4Game\GameLogic\GameBoard.cs">
+      <Link>GameLogic\GameBoard.cs</Link>
+    </Compile>
+    <Compile Include="..\Puissance4Game\GameLogic\MinimaxAi.cs">
+      <Link>GameLogic\MinimaxAi.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Info.plist">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <InterfaceDefinition Include="LaunchScreen.storyboard" />
+  </ItemGroup>
+</Project>
